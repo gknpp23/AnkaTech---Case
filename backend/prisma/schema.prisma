@@ -1,0 +1,28 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL") // Carrega a URL do banco do arquivo .env
+}
+
+// Enum para o status do cliente
+enum ClientStatus {
+  ATIVO
+  INATIVO
+}
+
+// Modelo para Cliente
+model Client {
+  id     Int          @id @default(autoincrement()) // ID único, auto-incremental
+  email  String       @unique // Email único
+  name   String     
+  status ClientStatus @default(ATIVO) // Status do cliente, com padrão ATIVO
+
+  // Outros campos se necessário no futuro, como data de criação, etc.
+  // createdAt DateTime @default(now())
+  // updatedAt DateTime @updatedAt
+}
