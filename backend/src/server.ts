@@ -1,19 +1,26 @@
 import Fastify from 'fastify';
-import clientRoutes from './routes/client.routes'; // Importa nossas rotas de cliente
+import cors from '@fastify/cors'; // 1. IMPORTE O PLUGIN CORS
+import clientRoutes from './routes/client.routes';
 import assetRoutes from './routes/asset.routes';
 
 const server = Fastify({
-  logger: true, // Mantém o logger habilitado
+  logger: true,
 });
 
-// Rota de exemplo 
+
+// Configuração de CORS.
+server.register(cors, {
+  origin: "http://localhost:3000", // Permite requisições vindas desta origem
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Define os métodos HTTP permitidos
+});
+
+// Rota de exemplo
 server.get('/', async (request, reply) => {
   return { hello: 'world from AnkaTech Case API' };
 });
 
 // Registra as rotas de cliente com um prefixo
-server.register(clientRoutes, { prefix: '/api/v1/clients' }); // Todas as rotas em client.routes.ts terão /api/v1/clients na frente
-
+server.register(clientRoutes, { prefix: '/api/v1/clients' });
 
 // Registra as rotas de ativos
 server.register(assetRoutes, { prefix: '/api/v1/assets' });
@@ -22,7 +29,6 @@ const start = async () => {
   try {
     const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3333;
     await server.listen({ port: port, host: '0.0.0.0' });
-    // A mensagem de log já é feita pelo Fastify quando logger: true
   } catch (err) {
     server.log.error(err);
     process.exit(1);
