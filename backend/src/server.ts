@@ -1,21 +1,28 @@
-// backend/src/server.ts
 import Fastify from 'fastify';
+import clientRoutes from './routes/client.routes'; // Importa nossas rotas de cliente
+import assetRoutes from './routes/asset.routes';
 
 const server = Fastify({
-  logger: true // Habilita logs, útil para debugging
+  logger: true, // Mantém o logger habilitado
 });
 
-// Rota de exemplo
+// Rota de exemplo 
 server.get('/', async (request, reply) => {
-  return { hello: 'world' };
+  return { hello: 'world from AnkaTech Case API' };
 });
+
+// Registra as rotas de cliente com um prefixo
+server.register(clientRoutes, { prefix: '/api/v1/clients' }); // Todas as rotas em client.routes.ts terão /api/v1/clients na frente
+
+
+// Registra as rotas de ativos
+server.register(assetRoutes, { prefix: '/api/v1/assets' });
 
 const start = async () => {
   try {
-    // A porta aqui deve ser a mesma exposta no Dockerfile e mapeada no docker-compose
-    // E idealmente lida de uma variável de ambiente
-    await server.listen({ port: 3333, host: '0.0.0.0' }); // '0.0.0.0' é importante para Docker
-    server.log.info(`Servidor escutando na porta ${ (server.server.address() as any).port }`);
+    const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3333;
+    await server.listen({ port: port, host: '0.0.0.0' });
+    // A mensagem de log já é feita pelo Fastify quando logger: true
   } catch (err) {
     server.log.error(err);
     process.exit(1);
